@@ -12,8 +12,17 @@ include(GNUInstallDirs)
 set(INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/{{cookiecutter.project_name|lower}}")
 set(INSTALL_MODULEDIR "${INSTALL_INCLUDEDIR}/fmod")
 
+# Include project specific CMake functions
+include(cmake/{{cookiecutter.project_name}}.cmake)
+
 # Include user customizable config settings
 include(config.cmake)
+
+# Configure the build type (see cmake/{{cookiecutter.project_name}}.cmake)
+configure_build_type()
+
+# Configure the compiler flags (see cmake/{{cookiecutter.project_name}}.cmake)
+configure_compiler_flags()
 
 # Build library
 add_subdirectory(src)
