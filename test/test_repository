@@ -1,0 +1,23 @@
+#!/bin/bash
+set -ex
+
+if [ $# -ne 3 ]; then
+  echo "Error: invalid number of arguments" >&2
+  exit 1
+fi
+
+SOURCEDIR=$1
+WORKDIR=$2
+REPOSITORY=$3
+PROJECTNAME="myproject"
+
+mkdir -p ${WORKDIR}/_source
+cd ${WORKDIR}/_source
+cookiecutter --no-input ${SOURCEDIR}
+cd ${PROJECTNAME}
+git init .
+git add .
+git ci -m 'Initial commit'
+git branch -M main
+git remote add origin ${REPOSITORY}
+git push --force origin main

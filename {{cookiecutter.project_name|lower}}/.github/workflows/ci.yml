@@ -17,7 +17,8 @@ jobs:
     - name: Set up environment (Linux)
       if: contains(matrix.os, 'ubuntu')
       run: |
-        echo "ROOTFOLDER=${PWD}" >> $GITHUB_ENV
+        echo "SOURCEDIR=${PWD}" >> $GITHUB_ENV
+        echo "WORKDIR=${PWD}" >> $GITHUB_ENV
         echo "FC=gfortran" >> $GITHUB_ENV
         echo "CC=gcc" >> $GITHUB_ENV
         sudo apt-get update
@@ -26,38 +27,41 @@ jobs:
     - name: Set up environment (OSX)
       if: contains(matrix.os, 'macos')
       run: |
-        echo "ROOTFOLDER=${PWD}" >> $GITHUB_ENV
+        echo "SOURCEDIR=${PWD}" >> $GITHUB_ENV
+        echo "WORKDIR=${PWD}" >> $GITHUB_ENV
         echo "FC=gfortran-9" >> $GITHUB_ENV
         echo "CC=gcc-9" >> $GITHUB_ENV
         brew install ninja
 
     - name: Configure build
       run: >-
-        cmake -B _build -G Ninja
-        -DCMAKE_INSTALL_PREFIX=${PWD}/_install
+        cmake -B ${WORKDIR}/_build -G Ninja
+        -DCMAKE_INSTALL_PREFIX=${WORKDIR}/_install
 
     - name: Build project
       run: |
-        cmake --build _build
+        cmake --build ${WORKDIR}/_build
 
     - name: Install project
       run: |
-        cmake --install _build
+        cmake --install ${WORKDIR}/_build
 
     - name: Run tests
       run: |
-        cd _build
+        cd ${WORKDIR}/_build
         ctest -j 2 --output-on-failure
         cd -
 
     - name: Install project
       run: |
-        cmake --install _build
+        cmake --install ${WORKDIR}/_build
 
     - name: Run integration test
       run: |
-        mkdir integtest
-        CMAKE_PREFIX_PATH=${ROOTFOLDER}/_install cmake -G Ninja ${ROOTFOLDER}/test/integration
-        ninja
+        mkdir ${WORKDIR}/_integtest
+        cd ${WORKDIR}/_integtest
+        CMAKE_PREFIX_PATH=${WORKDIR}/_install cmake -G Ninja ${SOURCEDIR}/test/integration
+        ninja all
         ./test_build
+        cd -
 {% endraw %}
