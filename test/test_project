@@ -1,0 +1,28 @@
+#!/bin/bash
+set -ex
+
+if [ $# -ne 2 ]; then
+  echo "Error: invalid number of arguments" >&2
+  exit 1
+fi
+
+SOURCEDIR=$1
+WORKDIR=$2
+PROJECTNAME="myproject"
+
+mkdir -p ${WORKDIR}/_source
+cd ${WORKDIR}/_source
+cookiecutter --no-input ${SOURCEDIR}
+
+mkdir -p ${WORKDIR}/_build
+cd ${WORKDIR}/_build
+cmake -GNinja -DCMAKE_INSTALL_PREFIX=${WORKDIR}/_install ${WORKDIR}/_source/${PROJECTNAME}
+ninja all
+ctest
+ninja install
+
+mkdir -p ${WORKDIR}/_integtest
+cd ${WORKDIR}/_integtest
+CMAKE_PREFIX_PATH=${WORKDIR}/_install cmake -GNinja ${WORKDIR}/_source/${PROJECTNAME}/test/integration
+ninja all
+./test_build

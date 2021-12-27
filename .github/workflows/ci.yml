@@ -1,0 +1,42 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  gnu-build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up environment (Linux)
+      if: contains(matrix.os, 'ubuntu')
+      run: |
+        echo "SOURCEDIR=${PWD}" >> $GITHUB_ENV
+        echo "WORKDIR=${PWD}" >> $GITHUB_ENV
+        echo "FC=gfortran" >> $GITHUB_ENV
+        echo "CC=gcc" >> $GITHUB_ENV
+        sudo apt-get update
+        sudo apt-get install cmake ninja-build
+
+    - name: Set up environment (OSX)
+      if: contains(matrix.os, 'macos')
+      run: |
+        echo "SOURCEDIR=${PWD}" >> $GITHUB_ENV
+        echo "WORKDIR=${PWD}" >> $GITHUB_ENV
+        echo "FC=gfortran-9" >> $GITHUB_ENV
+        echo "CC=gcc-9" >> $GITHUB_ENV
+        brew install ninja
+
+    - name: Install necessary Python packages
+      run: pip3 install cookiecutter
+
+    - name: Test project
+      run: |
+        mkdir ${WORKDIR}/_test
+        cd ${WORKDIR}/_test
+        ${SOURCEDIR}/test/test_project ${SOURCEDIR} ${PWD}
