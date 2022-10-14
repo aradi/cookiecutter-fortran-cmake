@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 # Set basic project properties
 project({{cookiecutter.project_name}}
-    VERSION 0.1
+    VERSION 0.1.0
     DESCRIPTION "{{cookiecutter.short_description}}"
     LANGUAGES Fortran
 )
