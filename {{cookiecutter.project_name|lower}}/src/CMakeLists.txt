@@ -8,6 +8,11 @@ add_subdirectory({{cookiecutter.project_name|lower}})
 
 # Build library
 add_library({{cookiecutter.project_name|lower}} ${f90-sources})
+set_target_properties( {{cookiecutter.project_name|lower}}
+  PROPERTIES VERSION ${PROJECT_VERSION}
+  SOVERSION ${PROJECT_VERSION_MAJOR}
+)
+
 
 # Store generated mod-files in a separate folder
 set(moddir "${CMAKE_CURRENT_BINARY_DIR}/fmod")
